@@ -16,6 +16,7 @@ abstract class ScalaStepFilter(scalaVersion: ScalaVersion) extends StepFilter {
   protected def skipScalaMethod(method: Method): Boolean
 
   override def shouldSkipOver(method: Method): Boolean = {
+   
     if (method.isBridge) true
     else if (isDynamicClass(method.declaringType)) true
     else if (isJava(method)) false

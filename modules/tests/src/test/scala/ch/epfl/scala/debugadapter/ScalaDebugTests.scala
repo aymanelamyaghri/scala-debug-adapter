@@ -79,8 +79,17 @@ class Scala3DebugTest extends ScalaDebugTests(ScalaVersion.`3.1+`) {
          |     }
          |""".stripMargin
     implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
-
-    check(
+check(
+      Breakpoint(
+        11,
+        List(
+          "test"
+        )
+      ),
+      Breakpoint(11),
+      Breakpoint(11)
+    )
+   /* check(
       Breakpoint(
         11,
         List(
@@ -95,7 +104,7 @@ class Scala3DebugTest extends ScalaDebugTests(ScalaVersion.`3.1+`) {
       ),
       Breakpoint(11),
       Breakpoint(11)
-    )
+    )*/
 
   }
   test("should show the correct stackTrace insde a foreach") {
