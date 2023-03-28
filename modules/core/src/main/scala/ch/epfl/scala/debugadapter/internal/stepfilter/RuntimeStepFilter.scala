@@ -3,11 +3,14 @@ package ch.epfl.scala.debugadapter.internal.stepfilter
 import com.sun.jdi.Method
 import com.sun.jdi.Location
 import ch.epfl.scala.debugadapter.ScalaVersion
+import java.util.Optional
 
 private class RuntimeStepFilter(
     classesToSkip: Set[String],
     methodsToSkip: Set[String]
 ) extends StepFilter {
+
+  override def formatName(method : Method) : Optional[String] = Optional.of(method.name())
   override def shouldSkipOver(method: Method): Boolean =
     classesToSkip.contains(method.declaringType.name) ||
       methodsToSkip.contains(method.toString)

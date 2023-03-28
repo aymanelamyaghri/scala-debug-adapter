@@ -12,18 +12,47 @@ import scala.util.Try
 import java.nio.file.Path
 import scala.util.Success
 import scala.util.Failure
+import java.util.Optional
 import ch.epfl.scala.debugadapter.ScalaVersion
 
 class Scala3StepFilter(
     scalaVersion: ScalaVersion,
     bridge: Any,
-    skipMethod: Method
+    skipMethod: Method,
+    formatMethod: Method
 ) extends ScalaStepFilter(scalaVersion) {
-  override protected def skipScalaMethod(method: jdi.Method): Boolean =
+  override protected def skipScalaMethod(method: com.sun.jdi.Method): Boolean = {
     try skipMethod.invoke(bridge, method).asInstanceOf[Boolean]
     catch {
       case e: InvocationTargetException => throw e.getCause
     }
+  }
+
+  private def isAnonFunction(method: jdi.Method): Boolean =
+    method.name.matches(".+\\$anonfun\\$\\d+")
+
+  private def formatAnonFunction(method: jdi.Method): Optional[String] = {
+    val regex = "\\$\\$anonfun.*"
+    var result = method.toString.replaceAll(regex, "").replaceAll("\\$", ".")
+    result=result ++ ".anonfun"++"("
+    
+    method.argumentTypeNames().forEach(t => result=result++t)
+    Optional.of(result++")")
+  }
+
+  override def formatName(method: jdi.Method): Optional[String] = {
+    try {
+
+     if (isAnonFunction(method)) {
+           return formatAnonFunction(method)
+
+          }
+      formatMethod.invoke(bridge, method).asInstanceOf[Optional[String]]
+
+    } catch {
+      case e: InvocationTargetException => throw e.getCause
+    }
+  }
 }
 
 object Scala3StepFilter {
@@ -52,7 +81,9 @@ object Scala3StepFilter {
         testMode: java.lang.Boolean
       )
       val skipMethod = cls.getMethods.find(m => m.getName == "skipMethod").get
-      Success(new Scala3StepFilter(debuggee.scalaVersion, bridge, skipMethod))
+      val formatMethod = cls.getMethods.find(m => m.getName == "formatName").get
+
+      Success(new Scala3StepFilter(debuggee.scalaVersion, bridge, skipMethod, formatMethod))
     } catch {
       case cause: Throwable => Failure(cause)
     }

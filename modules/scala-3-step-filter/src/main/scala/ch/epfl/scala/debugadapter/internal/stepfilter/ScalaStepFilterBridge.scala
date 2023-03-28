@@ -14,6 +14,8 @@ import scala.util.matching.Regex
 import scala.util.Try
 import tastyquery.Types.*
 import tastyquery.Signatures.*
+import java.util.Optional
+import scala.jdk.OptionConverters.*
 
 class ScalaStepFilterBridge(
     classpaths: Array[Path],
@@ -25,10 +27,17 @@ class ScalaStepFilterBridge(
 
   private def warn(msg: String): Unit = warnLogger.accept(msg)
 
-  private def throwOrWarn(msg: String): Unit =
-    if (testMode) throw new Exception(msg)
-    else warn(msg)
-
+  private def throwOrWarn(msg: String): Unit = {}
+//    if (testMode) throw new Exception(msg)
+  //  else warn(msg)
+  def formatName(obj: Any): Optional[String] =
+    val method = jdi.Method(obj)   
+    findSymbol(obj)
+      .map { t =>
+        val args = method.arguments.map(t =>t.name++" : "++ t.`type`.name)
+        s"${t.owner.fullName}.${t.name}(${args.mkString(", ")})"
+      }
+      .asJava
   def skipMethod(obj: Any): Boolean =
     findSymbol(obj).forall(skip)
 

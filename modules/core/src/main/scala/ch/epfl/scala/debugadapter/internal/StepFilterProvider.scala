@@ -7,6 +7,7 @@ import com.microsoft.java.debug.core.adapter.{StepFilterProvider => JavaStepFilt
 import com.microsoft.java.debug.core.protocol.Requests.StepFilters
 import com.sun.jdi.Location
 import com.sun.jdi.Method
+import java.util.Optional
 
 class StepFilterProvider(
     stepFilters: Seq[StepFilter],
@@ -14,6 +15,14 @@ class StepFilterProvider(
     testMode: Boolean
 ) extends JavaStepFilterProvider() {
 
+  override def shouldSkipFrame(method : Method) : Boolean={
+    stepFilters.exists(_.shouldSkipOver(method))
+
+
+  }
+  override def formatMethodName(method: Method): Optional[String] = {
+    stepFilters(2).formatName(method)  
+  }
   override def shouldSkipOver(method: Method, filters: StepFilters): Boolean = {
     try {
       val skipOver = super.shouldSkipOver(method, filters) || stepFilters.exists(_.shouldSkipOver(method))

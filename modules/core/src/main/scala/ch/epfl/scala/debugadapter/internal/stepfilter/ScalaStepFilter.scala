@@ -11,9 +11,13 @@ import com.sun.jdi.Method
 import com.sun.jdi.ReferenceType
 
 import scala.jdk.CollectionConverters.*
+import java.util.Optional
 
 abstract class ScalaStepFilter(scalaVersion: ScalaVersion) extends StepFilter {
   protected def skipScalaMethod(method: Method): Boolean
+  override def formatName(method : Method ) : Optional[String] = {
+    Optional.of(method.name())
+  }
 
   override def shouldSkipOver(method: Method): Boolean = {
    
