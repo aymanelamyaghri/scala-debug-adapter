@@ -57,9 +57,6 @@ class ScalaStepFilterBridge(
       }
 
       case k: AppliedType =>
-
-         
-
         val a = convertTypeToString(true, k.tycon)
 
         if (a.isEmpty()) {
@@ -103,18 +100,16 @@ class ScalaStepFilterBridge(
     }
   }
 
-
-  def isFunction(tpe: Type): Boolean = 
+  def isFunction(tpe: Type): Boolean =
     tpe match
       case ref: TypeRef => {
-         ref.prefix match
+        ref.prefix match
           case t: PackageRef =>
-             (ref.name.toString.startsWith("Function") & t.fullyQualifiedName.toString().equals("scala")) 
-           
+            (ref.name.toString.startsWith("Function") & t.fullyQualifiedName.toString().equals("scala"))
+
           case _ => { false }
       }
       case _ => false
-    
 
   def formatName(obj: Any): Optional[String] =
     val method = jdi.Method(obj)

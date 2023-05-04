@@ -34,19 +34,19 @@ class Scala3StepFilter(
   private def formatAnonFunction(method: jdi.Method): Optional[String] = {
     val regex = "\\$\\$anonfun.*"
     var result = method.toString.replaceAll(regex, "").replaceAll("\\$", ".")
-    result=result ++ ".anonfun"++"("
-    
-    method.argumentTypeNames().forEach(t => result=result++t)
-    Optional.of(result++")")
+    result = result ++ ".anonfun" ++ "("
+
+    method.argumentTypeNames().forEach(t => result = result ++ t)
+    Optional.of(result ++ ")")
   }
 
   override def formatName(method: jdi.Method): Optional[String] = {
     try {
 
-     if (isAnonFunction(method)) {
-           return formatAnonFunction(method)
+      if (isAnonFunction(method)) {
+        return formatAnonFunction(method)
 
-          }
+      }
       formatMethod.invoke(bridge, method).asInstanceOf[Optional[String]]
 
     } catch {

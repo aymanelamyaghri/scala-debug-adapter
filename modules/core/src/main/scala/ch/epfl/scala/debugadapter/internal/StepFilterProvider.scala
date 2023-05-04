@@ -15,13 +15,12 @@ class StepFilterProvider(
     testMode: Boolean
 ) extends JavaStepFilterProvider() {
 
-  override def shouldSkipFrame(method : Method) : Boolean={
+  override def shouldSkipFrame(method: Method): Boolean = {
     stepFilters.exists(_.shouldSkipOver(method))
-
 
   }
   override def formatMethodName(method: Method): Optional[String] = {
-    stepFilters(2).formatName(method)  
+    stepFilters(2).formatName(method)
   }
   override def shouldSkipOver(method: Method, filters: StepFilters): Boolean = {
     try {

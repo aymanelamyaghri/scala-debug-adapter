@@ -15,12 +15,12 @@ import java.util.Optional
 
 abstract class ScalaStepFilter(scalaVersion: ScalaVersion) extends StepFilter {
   protected def skipScalaMethod(method: Method): Boolean
-  override def formatName(method : Method ) : Optional[String] = {
+  override def formatName(method: Method): Optional[String] = {
     Optional.of(method.name())
   }
 
   override def shouldSkipOver(method: Method): Boolean = {
-   
+
     if (method.isBridge) true
     else if (isDynamicClass(method.declaringType)) true
     else if (isJava(method)) false

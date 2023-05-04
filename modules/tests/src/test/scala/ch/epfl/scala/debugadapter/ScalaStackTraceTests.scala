@@ -2,21 +2,20 @@ package ch.epfl.scala.debugadapter
 
 import ch.epfl.scala.debugadapter.testfmk.*
 
-
 class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
- /* test("should show the correct stackTrace when using  a lambda as a parameter") {
+  /* test("should show the correct stackTrace when using  a lambda as a parameter") {
     val source =
       """|package example
          |object Main {
-         |  def foo( f : (String,Int) => Int )(y : Int ) : Int  = 
+         |  def foo( f : (String,Int) => Int )(y : Int ) : Int  =
          |    f("",y)
          |  def main(args: Array[String]): Unit = {
          |    foo((x,z) => z+2)(3)
-         | 
+         |
          |  }
          |}
-            
-        
+
+
          |""".stripMargin
     implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
 
@@ -25,22 +24,22 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
     )
 
   }*/
-   /*test("should show the correct stackTrace when using  a TypeRefinement") {
+  /*test("should show the correct stackTrace when using  a TypeRefinement") {
     val source =
       """|package example
          |class Foo{
          |
          |}
          |object Main {
-         |  def foo: Foo{ type Bar} = 
+         |  def foo: Foo{ type Bar} =
          |    ???
          |  def main(args: Array[String]): Unit = {
          |    foo
-         | 
+         |
          |  }
          |}
-            
-        
+
+
          |""".stripMargin
     implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
 
@@ -73,7 +72,7 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
     )
 
   }
-   /*test("should show the correct stackTrace when using  a TermParamRef type") {
+  /*test("should show the correct stackTrace when using  a TermParamRef type") {
     val source =
       """|package example
          |
@@ -82,21 +81,21 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
          | class Bar{
          |
          |}
-        
+
          |}
          |
          |object Main {
-         |  def foo(x : Foo) : x.Bar ={ 
+         |  def foo(x : Foo) : x.Bar ={
          |new x.Bar()
          |}
          |  def main(args: Array[String]): Unit = {
          |   val x= new Foo()
          |   foo(x)
-         | 
+         |
          |  }
          |}
-            
-        
+
+
          |""".stripMargin
     implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
 
@@ -105,7 +104,7 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
     )
 
   } */
-    
+
   /* test("should show the correct stackTrace when using  a byName parameter") {
     val source =
       """|package example
@@ -148,7 +147,6 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
 
   }*/
 
-
   /*test("should show the correct stackTrace when using orType and AndType") {
     val source =
       """|package example
@@ -168,7 +166,7 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
     )
 
   }*/
-   test("should show the correct stackTrace in nested calls in different classes with  arguments of methods 1") {
+  test("should show the correct stackTrace in nested calls in different classes with  arguments of methods 1") {
     val source =
       """|package example
          |class A {
@@ -198,7 +196,7 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
     )
 
   }
-   test("should show the correct stackTrace when calling a function with 2 lists of args") {
+  test("should show the correct stackTrace when calling a function with 2 lists of args") {
     val source =
       """|package example
          |class A {
@@ -249,7 +247,9 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
     )
 
   }
-   test("should show the correct stackTrace in nested calls in different classes with non empty arguments of methods 2") {
+  test(
+    "should show the correct stackTrace in nested calls in different classes with non empty arguments of methods 2"
+  ) {
     val source =
       """|package example
          |
@@ -278,7 +278,7 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
     )
 
   }
- test("should show the correct stackTrace in nested calls in different classes") {
+  test("should show the correct stackTrace in nested calls in different classes") {
     val source =
       """|package example
          |class A {
@@ -306,9 +306,6 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
     )
 
   }
-  
-  
-
 
   test("should show the correct stackTrace in nested calls") {
     val source =
@@ -381,7 +378,7 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
          |     })
          |""".stripMargin
     implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
-  check(
+    check(
       Breakpoint(
         10,
         List(
@@ -391,7 +388,6 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
       Breakpoint(10),
       Breakpoint(10)
     )
-  
 
   }
   test("should show the correct stackTrace insde a foreach") {
@@ -424,13 +420,15 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
         List(
           "test"
         )
-      ),Breakpoint(18),Breakpoint(18)
+      ),
+      Breakpoint(18),
+      Breakpoint(18)
     )
 
   }
   test("should show the correct stackTrace in an anonymous class") {
-  
-      val source =
+
+    val source =
       """|package example
          |trait Greeter {
          |  def greet(name: String): Unit
@@ -491,12 +489,11 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
         List(
           "test"
         )
-      ),Breakpoint(19),Breakpoint(19)
+      ),
+      Breakpoint(19),
+      Breakpoint(19)
     )
 
   }
- 
 
- 
 }
-

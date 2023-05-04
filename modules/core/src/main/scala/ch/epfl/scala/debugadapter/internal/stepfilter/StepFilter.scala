@@ -6,5 +6,5 @@ import java.util.Optional
 trait StepFilter {
   def shouldSkipOver(method: Method): Boolean = false
   def shouldSkipOut(upperLocation: Location, method: Method): Boolean = false
-  def formatName(method : Method) : Optional[String]
+  def formatName(method: Method): Optional[String]
 }
