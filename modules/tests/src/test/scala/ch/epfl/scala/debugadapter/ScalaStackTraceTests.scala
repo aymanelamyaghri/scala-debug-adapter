@@ -2,52 +2,9 @@ package ch.epfl.scala.debugadapter
 
 import ch.epfl.scala.debugadapter.testfmk.*
 
-class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
-  /* test("should show the correct stackTrace when using  a lambda as a parameter") {
-    val source =
-      """|package example
-         |object Main {
-         |  def foo( f : (String,Int) => Int )(y : Int ) : Int  =
-         |    f("",y)
-         |  def main(args: Array[String]): Unit = {
-         |    foo((x,z) => z+2)(3)
-         |
-         |  }
-         |}
+class ScalaStackTraceTests extends DebugTestSuite {
+  val scalaVersion = ScalaVersion.`3.1+`
 
-
-         |""".stripMargin
-    implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
-
-    check(
-      Breakpoint(4, List("test"))
-    )
-
-  }*/
-  /*test("should show the correct stackTrace when using  a TypeRefinement") {
-    val source =
-      """|package example
-         |class Foo{
-         |
-         |}
-         |object Main {
-         |  def foo: Foo{ type Bar} =
-         |    ???
-         |  def main(args: Array[String]): Unit = {
-         |    foo
-         |
-         |  }
-         |}
-
-
-         |""".stripMargin
-    implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
-
-    check(
-      Breakpoint(7, List("test"))
-    )
-
-  }*/
 
   test("should show the correct stackTrace when using  a LambdaType") {
     val source =
@@ -72,100 +29,7 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
     )
 
   }
-  /*test("should show the correct stackTrace when using  a TermParamRef type") {
-    val source =
-      """|package example
-         |
-         |class Foo {
-         |
-         | class Bar{
-         |
-         |}
-
-         |}
-         |
-         |object Main {
-         |  def foo(x : Foo) : x.Bar ={
-         |new x.Bar()
-         |}
-         |  def main(args: Array[String]): Unit = {
-         |   val x= new Foo()
-         |   foo(x)
-         |
-         |  }
-         |}
-
-
-         |""".stripMargin
-    implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
-
-    check(
-      Breakpoint(13, List("test"))
-    )
-
-  } */
-
-  /* test("should show the correct stackTrace when using  a byName parameter") {
-    val source =
-      """|package example
-         |class A {
-         |  def method1(t: => Int ): Int = 1
-         |}
-         |object Main:
-         |  def main(args: Array[String]): Unit =
-         |    val a = new A()
-         |    val result = a.method1(1)
-         |    println(result)
-         |""".stripMargin
-    implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
-
-    check(
-      Breakpoint(3, List("test"))
-    )
-
-  }*/
-
-  /*test("should show the correct stackTrace when using  a wildCardTypeBounds type") {
-    val source =
-      """|package example
-         |class A {
-         |def myOtherMethod(param: Int): Option[?] = {
-         |  if (param > 0) Some("positive")
-         |  else if (param < 0) Some("negative")
-         |  else None
-         |}}
-         |object Main:
-         |  def main(args: Array[String]): Unit =
-         |    val a = new A()
-         |    a.myOtherMethod(2)
-         |""".stripMargin
-    implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
-
-    check(
-      Breakpoint(4, List("test"))
-    )
-
-  }*/
-
-  /*test("should show the correct stackTrace when using orType and AndType") {
-    val source =
-      """|package example
-         |class A {
-         |  def method1(): 1&1 = 1
-         |}
-         |object Main:
-         |  def main(args: Array[String]): Unit =
-         |    val a = new A()
-         |    val result = a.method1()
-         |    println(result)
-         |""".stripMargin
-    implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
-
-    check(
-      Breakpoint(3, List("test"))
-    )
-
-  }*/
+ 
   test("should show the correct stackTrace in nested calls in different classes with  arguments of methods 1") {
     val source =
       """|package example
@@ -192,7 +56,11 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
     implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
 
     check(
-      Breakpoint(12, List("test"))
+      Breakpoint(12, List("example.D.method4(A): String",
+ "example.C.method3(A): String",
+  "example.B.method2(A): String",
+  "example.A.method1(B): String",
+  "example.Main.main(Array[String]): Unit"))
     )
 
   }
@@ -243,7 +111,8 @@ class ScalaStackTraceTests extends ScalaDebugTests(ScalaVersion.`3.1+`) {
     implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
 
     check(
-      Breakpoint(3, List("test"))
+      Breakpoint(3, List("example.A.methody[T](T)(String): String",
+  "example.Main.main(Array[String]): Unit"))
     )
 
   }

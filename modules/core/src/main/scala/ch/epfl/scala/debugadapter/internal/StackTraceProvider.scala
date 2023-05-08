@@ -11,16 +11,14 @@ import java.util.Optional
 
 class StepFilterProvider(
     stepFilters: Seq[StepFilter],
+    scalaStepFilter : ScalaStepFilter,
     logger: Logger,
     testMode: Boolean
 ) extends JavaStepFilterProvider() {
 
-  override def shouldSkipFrame(method: Method): Boolean = {
-    stepFilters.exists(_.shouldSkipOver(method))
 
-  }
   override def formatMethodName(method: Method): Optional[String] = {
-    stepFilters(2).formatName(method)
+    scalaStepFilter.format(method)
   }
   override def shouldSkipOver(method: Method, filters: StepFilters): Boolean = {
     try {
@@ -58,10 +56,11 @@ object StepFilterProvider {
       logger: Logger,
       testMode: Boolean
   ): StepFilterProvider = {
-    val scalaStepFilter = ScalaStepFilter(debuggee, tools, logger, testMode)
+    val scalaStepFilter : ScalaStepFilter = ScalaStepFilter(debuggee, tools, logger, testMode).asInstanceOf[ScalaStepFilter]
     val runtimeStepFilter = RuntimeStepFilter(debuggee.scalaVersion)
     new StepFilterProvider(
       Seq(ClassLoadingStepFilter, runtimeStepFilter, scalaStepFilter),
+      scalaStepFilter,
       logger,
       testMode
     )

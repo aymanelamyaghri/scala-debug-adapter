@@ -40,7 +40,7 @@ class Scala3StepFilter(
     Optional.of(result ++ ")")
   }
 
-  override def formatName(method: jdi.Method): Optional[String] = {
+  override def formatScala(method: jdi.Method): Optional[String] = {
     try {
 
       if (isAnonFunction(method)) {

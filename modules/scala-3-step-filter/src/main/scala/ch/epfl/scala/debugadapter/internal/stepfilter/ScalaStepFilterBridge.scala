@@ -30,72 +30,77 @@ class ScalaStepFilterBridge(
   private def throwOrWarn(msg: String): Unit = {}
 //    if (testMode) throw new Exception(msg)
   //  else warn(msg)
-  def convertTypeToString(isArgs: Boolean, t: Type): String = {
+  def formatType(isArgs: Boolean, t: Type): String = {
     t match {
 
-      case methodtype1: MethodType => {
+      case t: MethodType => {
 
-        methodtype1.paramTypes
-          .map(x => convertTypeToString(true, x))
+        t.paramTypes
+          .map(x => formatType(true, x))
           .mkString("(", ", ", ")")
-          + convertTypeToString(false, methodtype1.resultType)
+          + formatType(false, t.resultType)
 
       }
-      case b: TypeRef => {
-        val optionalPrefix = b.prefix match
-          case prefix: TypeRef => convertTypeToString(true, prefix) + "."
-          case prefix: TermParamRef => convertTypeToString(true, prefix) + "."
+      case t: TypeRef => {
+        val optionalPrefix = t.prefix match
+          case prefix: TypeRef => formatType(true, prefix) + "."
+          case prefix: TermParamRef => formatType(true, prefix) + "."
           case prefix: SuperType => "super."
           case _ => ""
-        val returnval = (if (!isArgs) ": " else "") + optionalPrefix + b.name.toString()
+        (if (!isArgs) ": " else "") + optionalPrefix + t.name.toString()
 
-        b.prefix match
-          case t: PackageRef =>
-            if (b.name.toString.startsWith("Function") & t.fullyQualifiedName.toString().equals("scala")) return ""
-            else returnval
-          case _ => { returnval }
+       
       }
 
-      case k: AppliedType =>
-        val a = convertTypeToString(true, k.tycon)
+      case t: AppliedType =>
+        val a = formatType(true, t.tycon)
 
-        if (a.isEmpty()) {
+        if (isFunction(t.tycon)) {
 
-          (if (!isArgs) ": " else "") + (if (k.args.size != 2) "(" else "") + k.args.init
-            .map(y => convertTypeToString(true, y))
-            .reduce((x, y) => x + "," + y) + (if (k.args.size != 2) ")" else "") + " => " + convertTypeToString(
+          (if (!isArgs) ": " else "") + (if (t.args.size != 2) "(" else "") + t.args.init
+            .map(y => formatType(true, y))
+            .reduce((x, y) => x + "," + y) + (if (t.args.size != 2) ")" else "") + " => " + formatType(
             true,
-            k.args.last
+            t.args.last
           )
-        } else
+        } 
+        
+        else if (isAndOrFunction(t.tycon)) {
+
+        (if (!isArgs) ": " else "") +     t.args.map(t => formatType(true,t)).reduce((x,y) => x+a+y)
+
+
+         
+        } 
+        else
           (if (!isArgs) ": " else "") +
-            a + "[" + k.args
-              .map(y => convertTypeToString(true, y))
+            a + "[" + t.args
+              .map(y => formatType(true, y))
               .reduce((x, y) => x + "," + y) + "]"
 
       case k: PolyType => {
-        "[" + k.paramNames.map(t => t.toString).mkString(", ") + "]" + convertTypeToString(
+        "[" + k.paramNames.map(t => t.toString).mkString(", ") + "]" + formatType(
           false,
           k.resultType
         )
 
       }
       case t: OrType =>
-        (if (!isArgs) ": " else "") + convertTypeToString(true, t.first) + "|" + convertTypeToString(true, t.second)
+        (if (!isArgs) ": " else "") + formatType(true, t.first) + "|" + formatType(true, t.second)
       case t: AndType =>
-        (if (!isArgs) ": " else "") + convertTypeToString(true, t.first) + "&" + convertTypeToString(true, t.second)
-      case t: ThisType => convertTypeToString(isArgs, t.tref)
-      case t: TermRefinement => (if (!isArgs) ": " else "") + convertTypeToString(true, t.parent) + " { ... }"
-      case t: AnnotatedType => convertTypeToString(isArgs, t.typ)
+        (if (!isArgs) ": " else "") + formatType(true, t.first) + "&" + formatType(true, t.second)
+      case t: ThisType => formatType(isArgs, t.tref)
+      case t: TermRefinement => (if (!isArgs) ": " else "") + formatType(true, t.parent) + " { ... }"
+      case t: AnnotatedType => formatType(isArgs, t.typ)
       case t: TypeParamRef => (if (!isArgs) ": " else "") + t.toString
-      case t: TermRef => convertTypeToString(isArgs, t.underlying)
+      case t: TermRef => formatType(isArgs, t.underlying)
       case t: ConstantType => (if (!isArgs) ": " else "") + t.value.value
-      case t: ByNameType => "=> " + convertTypeToString(isArgs, t.resultType)
+      case t: ByNameType => "=> " + formatType(isArgs, t.resultType)
       case t: TermParamRef => (if (!isArgs) ": " else "") + t.paramName
-      case t: TypeRefinement => (if (!isArgs) ": " else "") + convertTypeToString(true, t.parent) + " { ... }"
+      case t: TypeRefinement => (if (!isArgs) ": " else "") + formatType(true, t.parent) + " { ... }"
       case _: WildcardTypeBounds => (if (!isArgs) ": " else "") + "?"
-
-      // case _: TypeLambda =>
+      case t : RecType =>  (if (!isArgs) ": " else "") + formatType(true, t.parent) 
+      case t: TypeLambda =>(if (!isArgs) ": " else "")  + "[" + t.paramNames.map(t => t.toString).reduce((x,y) => x+","+y)+"]"+" =>> "+ formatType(true,t.resultType)
 
     }
   }
@@ -110,11 +115,22 @@ class ScalaStepFilterBridge(
           case _ => { false }
       }
       case _ => false
+  def isAndOrFunction(tpe: Type): Boolean =
+    tpe match
+      case ref: TypeRef => {
+        ref.prefix match
+          case t: PackageRef =>
+            ((ref.name.toString.equals("|") || ref.name.toString.equals("&") )& t.fullyQualifiedName.toString().equals("scala"))
+
+          case _ => { false }
+      }
+      case _ => false
+ 
 
   def formatName(obj: Any): Optional[String] =
     val method = jdi.Method(obj)
     findSymbol(obj).map { t =>
-      s"${t.owner.fullName}.${t.name}${convertTypeToString(false, t.declaredType)}"
+      s"${t.owner.fullName}.${t.name}${formatType(false, t.declaredType)}"
     }.asJava
   def skipMethod(obj: Any): Boolean =
     findSymbol(obj).forall(skip)

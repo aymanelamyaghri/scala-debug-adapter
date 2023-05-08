@@ -457,6 +457,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
          |  def m5(x : Foo) : x.Bar ={ 
          |         new x.Bar()
          |         }
+         
          |
          |}
          |""".stripMargin
@@ -503,10 +504,10 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assertFormat("m")("t" -> "scala.Function1")("int")("example.Main.m(Int => Int): Int")
 
     assertFind("m1")()("int")
-    assertFormat("m1")()("int")("example.Main.m1(): &[1,1]")
+    assertFormat("m1")()("int")("example.Main.m1(): 1&1")
 
     assertFind("m2")()("int")
-    assertFormat("m2")()("int")("example.Main.m2(): |[1,1]")
+    assertFormat("m2")()("int")("example.Main.m2(): 1|1")
 
     assertFind("m3")("t" -> "int")("scala.Option")
     assertFormat("m3")("t" -> "int")("scala.Option")("example.Main.m3(Int): Option[?]")
@@ -582,7 +583,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(stepFilter.findSymbol(m1).isDefined)
     assertEquals(
       stepFilter.formatName(m1).asScala,
-      Some("example.Main.m1(): &[A,B] { ... }")
+      Some("example.Main.m1(): A&B { ... }")
     )
     assert(stepFilter.findSymbol(m2).isDefined)
     assertEquals(
@@ -725,7 +726,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     val stepFilter = getStepFilter(debuggee)
     val m = FakeJdiMethod("example.A", "m")("as" -> "scala.collection.immutable.Seq")("java.lang.String")
     assert(stepFilter.findSymbol(m).isDefined)
-    assertEquals(stepFilter.formatName(m).asScala, Some("example.A.m(Seq[String]): String"))
+    assertEquals(stepFilter.formatName(m).asScala, Some("example.A.m(<repeated>[String]): String"))
   }
 
   test("match encoded symbols") {
@@ -828,6 +829,28 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assertEquals(stepFilter.formatName(foo).asScala, Some("example.Outer.foo: String"))
     assert(stepFilter.findSymbol(m).isDefined)
     assertEquals(stepFilter.formatName(m).asScala, Some("example.A.m: Int"))
+
+  }
+  test("correctly format TypeLambda") {
+     val source =
+      """|package example
+         |
+         |trait Foo[F[_]]
+         |
+         |object Main {
+         |  def foo : Foo[[X] =>> Either[X,Int]] = 
+         |    ???
+         |}
+            
+        
+         |""".stripMargin
+    
+    val debuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
+    val stepFilter = getStepFilter(debuggee)
+    val foo = FakeJdiMethod("example.Main$","foo")()("example.Foo")
+    assert(stepFilter.findSymbol(foo).isDefined)
+    assertEquals(stepFilter.formatName(foo).asScala, Some("example.Main.foo: Foo[[X] =>> Either[X,Int]]"))
+   
 
   }
 

@@ -10,7 +10,6 @@ private class RuntimeStepFilter(
     methodsToSkip: Set[String]
 ) extends StepFilter {
 
-  override def formatName(method: Method): Optional[String] = Optional.of(method.name())
   override def shouldSkipOver(method: Method): Boolean =
     classesToSkip.contains(method.declaringType.name) ||
       methodsToSkip.contains(method.toString)

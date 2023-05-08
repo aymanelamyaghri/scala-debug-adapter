@@ -15,8 +15,25 @@ import java.util.Optional
 
 abstract class ScalaStepFilter(scalaVersion: ScalaVersion) extends StepFilter {
   protected def skipScalaMethod(method: Method): Boolean
-  override def formatName(method: Method): Optional[String] = {
-    Optional.of(method.name())
+  def format(method: Method): Optional[String] = {
+    if (method.isBridge) Optional.empty()
+    else if (isDynamicClass(method.declaringType)) Optional.empty()
+    else if (isJava(method)) formatScala(method)
+    else if (isConstructor(method)) formatScala(method)
+    else if (isStaticConstructor(method)) formatScala(method)
+    else if (isAdaptedMethod(method)) Optional.empty()
+    else if (isAnonFunction(method)) formatScala(method)
+    else if (isLiftedMethod(method)) formatScala(method)
+    else if (isAnonClass(method.declaringType)) formatScala(method)
+    // TODO in Scala 3 we should be able to find the symbol of a local class using TASTy Query
+    else if (isLocalClass(method.declaringType)) formatScala(method)
+    else if (scalaVersion.isScala2 && isNestedClass(method.declaringType)) formatScala(method)
+    else if (isDefaultValue(method)) formatScala(method)
+    else if (isTraitInitializer(method)) formatScala(method)
+    else formatScala(method)
+  }
+  def formatScala(method : Method) : Optional[String] = {
+     Optional.of(method.name())
   }
 
   override def shouldSkipOver(method: Method): Boolean = {
@@ -37,6 +54,7 @@ abstract class ScalaStepFilter(scalaVersion: ScalaVersion) extends StepFilter {
     else if (isTraitInitializer(method)) skipTraitInitializer(method)
     else skipScalaMethod(method)
   }
+  
 
   private def isDynamicClass(tpe: ReferenceType): Boolean =
     try {

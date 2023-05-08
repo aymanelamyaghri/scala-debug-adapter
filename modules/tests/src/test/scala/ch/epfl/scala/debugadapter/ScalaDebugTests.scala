@@ -7,7 +7,23 @@ import scala.concurrent.duration._
 class Scala212DebugTest extends ScalaDebugTests(ScalaVersion.`2.12`)
 class Scala213DebugTest extends ScalaDebugTests(ScalaVersion.`2.13`)
 class Scala3DebugTest extends ScalaDebugTests(ScalaVersion.`3.1+`) {
-
+test("should support breakpoints in scala 3 with brace-less syntax") {  
+val source =
+      """|package example
+         |
+         |object Main:
+         |  def main(args: Array[String]): Unit =
+         |    println("Breakpoint in main method")
+         |    new Hello().greet()
+         |    println("Finished all breakpoints")
+         |
+         |  class Hello():
+         |    def greet(): Unit =
+         |      println("Breakpoint in hello class")
+         |""".stripMargin
+    implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
+    check(Breakpoint(5), Breakpoint(11), Breakpoint(7))
+  }
   test("should support breakpoints in scala 3 with @main") {
     val source =
       """|package example
