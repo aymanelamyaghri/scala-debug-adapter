@@ -16,6 +16,7 @@ import tastyquery.Types.*
 import tastyquery.Signatures.*
 import java.util.Optional
 import scala.jdk.OptionConverters.*
+import java.lang.reflect.Method
 
 class ScalaStepFilterBridge(
     classpaths: Array[Path],
@@ -34,11 +35,16 @@ class ScalaStepFilterBridge(
     t match {
 
       case t: MethodType => {
+        val isreturnType = t.resultType match
+          case _: MethodType => false
+          case _: PolyType => false
+          case _ => true
 
         t.paramTypes
-          .map(x => formatType(true, x))
+          .zip(t.paramNames)
+          .map((x, y) => y.toString() + ": " + formatType(true, x))
           .mkString("(", ", ", ")")
-          + formatType(false, t.resultType)
+          + (if (isreturnType) ": " else "") + formatType(false, t.resultType)
 
       }
       case t: TypeRef => {
@@ -47,9 +53,8 @@ class ScalaStepFilterBridge(
           case prefix: TermParamRef => formatType(true, prefix) + "."
           case prefix: SuperType => "super."
           case _ => ""
-        (if (!isArgs) ": " else "") + optionalPrefix + t.name.toString()
+        optionalPrefix + t.name.toString()
 
-       
       }
 
       case t: AppliedType =>
@@ -57,28 +62,23 @@ class ScalaStepFilterBridge(
 
         if (isFunction(t.tycon)) {
 
-          (if (!isArgs) ": " else "") + (if (t.args.size != 2) "(" else "") + t.args.init
+          (if (t.args.size != 2) "(" else "") + t.args.init
             .map(y => formatType(true, y))
             .reduce((x, y) => x + "," + y) + (if (t.args.size != 2) ")" else "") + " => " + formatType(
             true,
             t.args.last
           )
-        } 
-        
-        else if (isAndOrFunction(t.tycon)) {
+        } else if (isAndOrFunction(t.tycon)) {
 
-        (if (!isArgs) ": " else "") +     t.args.map(t => formatType(true,t)).reduce((x,y) => x+a+y)
+          t.args.map(t => formatType(true, t)).reduce((x, y) => x + a + y)
 
-
-         
-        } 
-        else
-          (if (!isArgs) ": " else "") +
-            a + "[" + t.args
-              .map(y => formatType(true, y))
-              .reduce((x, y) => x + "," + y) + "]"
+        } else
+          a + "[" + t.args
+            .map(y => formatType(true, y))
+            .reduce((x, y) => x + "," + y) + "]"
 
       case k: PolyType => {
+
         "[" + k.paramNames.map(t => t.toString).mkString(", ") + "]" + formatType(
           false,
           k.resultType
@@ -86,21 +86,25 @@ class ScalaStepFilterBridge(
 
       }
       case t: OrType =>
-        (if (!isArgs) ": " else "") + formatType(true, t.first) + "|" + formatType(true, t.second)
+        formatType(true, t.first) + "|" + formatType(true, t.second)
       case t: AndType =>
-        (if (!isArgs) ": " else "") + formatType(true, t.first) + "&" + formatType(true, t.second)
+        formatType(true, t.first) + "&" + formatType(true, t.second)
       case t: ThisType => formatType(isArgs, t.tref)
-      case t: TermRefinement => (if (!isArgs) ": " else "") + formatType(true, t.parent) + " { ... }"
+      case t: TermRefinement => formatType(true, t.parent) + " { ... }"
       case t: AnnotatedType => formatType(isArgs, t.typ)
-      case t: TypeParamRef => (if (!isArgs) ": " else "") + t.toString
+      case t: TypeParamRef => t.toString
       case t: TermRef => formatType(isArgs, t.underlying)
-      case t: ConstantType => (if (!isArgs) ": " else "") + t.value.value
+      case t: ConstantType => t.value.value.toString()
       case t: ByNameType => "=> " + formatType(isArgs, t.resultType)
-      case t: TermParamRef => (if (!isArgs) ": " else "") + t.paramName
-      case t: TypeRefinement => (if (!isArgs) ": " else "") + formatType(true, t.parent) + " { ... }"
-      case _: WildcardTypeBounds => (if (!isArgs) ": " else "") + "?"
-      case t : RecType =>  (if (!isArgs) ": " else "") + formatType(true, t.parent) 
-      case t: TypeLambda =>(if (!isArgs) ": " else "")  + "[" + t.paramNames.map(t => t.toString).reduce((x,y) => x+","+y)+"]"+" =>> "+ formatType(true,t.resultType)
+      case t: TermParamRef => t.paramName.toString()
+      case t: TypeRefinement => formatType(true, t.parent) + " { ... }"
+      case _: WildcardTypeBounds => "?"
+      case t: RecType => formatType(true, t.parent)
+      case t: TypeLambda =>
+        "[" + t.paramNames.map(t => t.toString).reduce((x, y) => x + "," + y) + "]" + " =>> " + formatType(
+          true,
+          t.resultType
+        )
 
     }
   }
@@ -120,17 +124,25 @@ class ScalaStepFilterBridge(
       case ref: TypeRef => {
         ref.prefix match
           case t: PackageRef =>
-            ((ref.name.toString.equals("|") || ref.name.toString.equals("&") )& t.fullyQualifiedName.toString().equals("scala"))
+            ((ref.name.toString.equals("|") || ref.name.toString
+              .equals("&")) & t.fullyQualifiedName.toString().equals("scala"))
 
           case _ => { false }
       }
       case _ => false
- 
 
   def formatName(obj: Any): Optional[String] =
     val method = jdi.Method(obj)
     findSymbol(obj).map { t =>
-      s"${t.owner.fullName}.${t.name}${formatType(false, t.declaredType)}"
+      val notMethodType = t.declaredType match {
+        case _: MethodType => false
+        case _: PolyType => false
+        case _ => true
+      }
+      val optionalString = if (notMethodType) ": " else ""
+
+      s"${t.name}${optionalString}${formatType(false, t.declaredType)}"
+
     }.asJava
   def skipMethod(obj: Any): Boolean =
     findSymbol(obj).forall(skip)

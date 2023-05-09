@@ -69,21 +69,21 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(findM("example.A").isDefined)
     assertEquals(
       formatM("example.A"),
-      Some("example.A.m(): String")
+      Some("m(): String")
     )
     assert(findM("example.B").isEmpty)
     assert(findM("example.C").isEmpty)
     assert(findM("example.D").isDefined)
     assertEquals(
       formatM("example.D"),
-      Some("example.D.m(): String")
+      Some("m(): String")
     )
     assert(findM("example.E").isEmpty)
     assert(findM("example.F$").isEmpty)
     assert(findM("example.Main$G").isDefined)
     assertEquals(
       formatM("example.Main$G"),
-      Some("example.Main.G.m(): String")
+      Some("m(): String")
     )
     assert(findM("example.Main$H").isEmpty)
     assert(findM("example.Main$$anon$1").isEmpty)
@@ -134,7 +134,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(findGetter("example.Main$", "x1").isDefined)
     assertEquals(
       stepFilter.formatName(FakeJdiMethod("example.Main$", "x1")()("java.lang.String")).asScala,
-      Some("example.Main.x1: String")
+      Some("x1: String")
     )
 
     assert(findGetter("example.Main$", "x2").isDefined)
@@ -178,13 +178,13 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(findM("example.A", "java.lang.Object").isDefined)
     assertEquals(
       formatM("example.A")("java.lang.Object"),
-      Some("example.A.m(): Object")
+      Some("m(): Object")
     )
     assert(findM("example.B", "java.lang.Object").isEmpty)
     assert(findM("example.B", "java.lang.String").isDefined)
     assertEquals(
       formatM("example.B")("java.lang.String"),
-      Some("example.B.m(): String")
+      Some("m(): String")
     )
   }
 
@@ -212,7 +212,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(stepFilter.findSymbol(extensionMethod).isDefined)
     assertEquals(
       stepFilter.formatName(FakeJdiMethod("example.A$", "m$extension")()("java.lang.String")).asScala,
-      Some("example.A.m(): String")
+      Some("m(): String")
     )
   }
 
@@ -234,7 +234,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(stepFilter.findSymbol(method).isDefined)
     assertEquals(
       stepFilter.formatName(method).asScala,
-      Some("example.Main.m()(A): String")
+      Some("m()(a: A): String")
     )
   }
 
@@ -285,48 +285,48 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(stepFilter.findSymbol(toString).isDefined)
     assertEquals(
       stepFilter.formatName(toString).asScala,
-      Some("example.A.toString(): String")
+      Some("toString(): String")
     )
     assert(stepFilter.findSymbol(copy).isDefined)
     assertEquals(
       stepFilter.formatName(copy).asScala,
-      Some("example.A.copy(String): A")
+      Some("copy(a: String): A")
     )
     assert(stepFilter.findSymbol(hashCode).isDefined)
     assertEquals(
       stepFilter.formatName(hashCode).asScala,
-      Some("example.A.hashCode(): Int")
+      Some("hashCode(): Int")
     )
     assert(stepFilter.findSymbol(equals).isDefined)
     assertEquals(
       stepFilter.formatName(equals).asScala,
-      Some("example.A.equals(Any): Boolean")
+      Some("equals(x$0: Any): Boolean")
     )
     assert(stepFilter.findSymbol(productArity).isDefined)
     assertEquals(
       stepFilter.formatName(productArity).asScala,
-      Some("example.A.productArity: Int")
+      Some("productArity: Int")
     )
     assert(stepFilter.findSymbol(productPrefix).isDefined)
     assertEquals(
       stepFilter.formatName(productPrefix).asScala,
-      Some("example.A.productPrefix: String")
+      Some("productPrefix: String")
     )
     assert(stepFilter.findSymbol(productElement).isDefined)
     assertEquals(
       stepFilter.formatName(productElement).asScala,
-      Some("example.A.productElement(Int): Any")
+      Some("productElement(n: Int): Any")
     )
     assert(stepFilter.findSymbol(productIterator).isEmpty) // it is a bridge
     assert(stepFilter.findSymbol(apply).isDefined)
     assertEquals(
       stepFilter.formatName(apply).asScala,
-      Some("example.A.apply(String): A")
+      Some("apply(a: String): A")
     )
     assert(stepFilter.findSymbol(unapply).isDefined)
     assertEquals(
       stepFilter.formatName(unapply).asScala,
-      Some("example.A.unapply(A): A")
+      Some("unapply(x$1: A): A")
     )
   }
 
@@ -363,7 +363,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(stepFilter.findSymbol(m).isDefined)
     assertEquals(
       stepFilter.formatName(m).asScala,
-      Some("example.A.m(): A")
+      Some("m(): A")
     )
   }
 
@@ -411,7 +411,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(findM("example.A", "int").isDefined)
     assertEquals(
       stepFilter.formatName(FakeJdiMethod("example.A", "m")("xs" -> "scala.collection.immutable.List")("int")).asScala,
-      Some("example.A.m(List[Int]): Int")
+      Some("m(xs: List[Int]): Int")
     )
     assert(findM("example.B", "int").isEmpty)
     assert(findM("example.B", "java.lang.String").isDefined)
@@ -419,7 +419,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
       stepFilter
         .formatName((FakeJdiMethod("example.B", "m")("xs" -> "scala.collection.immutable.List")("java.lang.String")))
         .asScala,
-      Some("example.B.m(List[String]): String")
+      Some("m(xs: List[String]): String")
     )
   }
 
@@ -474,49 +474,49 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
       )
 
     assertFind("m")("a" -> "example.A")("example.A")
-    assertFormat("m")("a" -> "example.A")("example.A")("example.Main.m(A): A")
+    assertFormat("m")("a" -> "example.A")("example.A")("m(a: A): A")
 
     assertFind("mbis")("b" -> "example.A$B")("example.A$B")
-    assertFormat("mbis")("b" -> "example.A$B")("example.A$B")("example.Main.mbis(A.B): A.B")
+    assertFormat("mbis")("b" -> "example.A$B")("example.A$B")("mbis(b: A.B): A.B")
 
     assertFind("mbis")("a" -> "example.A", "b" -> "example.A$B")("example.A$B")
-    assertFormat("mbis")("a" -> "example.A", "b" -> "example.A$B")("example.A$B")("example.Main.mbis(A)(a.B): a.B")
+    assertFormat("mbis")("a" -> "example.A", "b" -> "example.A$B")("example.A$B")("mbis(a: A)(b: a.B): a.B")
 
     assertFind("m")("a" -> "example.Main$")("example.Main$")
-    assertFormat("m")("a" -> "example.Main$")("example.Main$")("example.Main.m(Main): Main")
+    assertFormat("m")("a" -> "example.Main$")("example.Main$")("m(a: Main): Main")
 
     assertFind("mbis")("a" -> "example.A")("example.A")
-    assertFormat("mbis")("a" -> "example.A")("example.A")("example.Main.mbis(A { ... }): A { ... }")
+    assertFormat("mbis")("a" -> "example.A")("example.A")("mbis(a: A { ... }): A { ... }")
 
     assertFind("m")("x" -> "java.lang.String")("java.lang.String")
-    assertFormat("m")("x" -> "java.lang.String")("java.lang.String")("example.Main.m(String): String")
+    assertFormat("m")("x" -> "java.lang.String")("java.lang.String")("m(x: String): String")
 
     assertFind("m")("x" -> "java.lang.Object")("java.lang.Object")
-    assertFormat("m")("x" -> "java.lang.Object")("java.lang.Object")("example.Main.m[T](T): T")
+    assertFormat("m")("x" -> "java.lang.Object")("java.lang.Object")("m[T](x: T): T")
 
     assertFind("mbis")("a" -> "example.Main$")("example.Main$")
-    assertFormat("mbis")("a" -> "example.Main$")("example.Main$")("example.Main.mbis(Main): Main")
+    assertFormat("mbis")("a" -> "example.Main$")("example.Main$")("mbis(a: Main): Main")
 
     assertFind("m")("t" -> "scala.Function0")("int")
-    assertFormat("m")("t" -> "scala.Function0")("int")("example.Main.m(=> Int): Int")
+    assertFormat("m")("t" -> "scala.Function0")("int")("m(t: => Int): Int")
 
     assertFind("m")("t" -> "scala.Function1")("int")
-    assertFormat("m")("t" -> "scala.Function1")("int")("example.Main.m(Int => Int): Int")
+    assertFormat("m")("t" -> "scala.Function1")("int")("m(t: Int => Int): Int")
 
     assertFind("m1")()("int")
-    assertFormat("m1")()("int")("example.Main.m1(): 1&1")
+    assertFormat("m1")()("int")("m1(): 1&1")
 
     assertFind("m2")()("int")
-    assertFormat("m2")()("int")("example.Main.m2(): 1|1")
+    assertFormat("m2")()("int")("m2(): 1|1")
 
     assertFind("m3")("t" -> "int")("scala.Option")
-    assertFormat("m3")("t" -> "int")("scala.Option")("example.Main.m3(Int): Option[?]")
+    assertFormat("m3")("t" -> "int")("scala.Option")("m3(t: Int): Option[?]")
 
     assertFind("m4")()("example.Foo")
-    assertFormat("m4")()("example.Foo")("example.Main.m4(): Foo { ... }")
+    assertFormat("m4")()("example.Foo")("m4(): Foo { ... }")
 
     assertFind("m5")("x" -> "example.Foo")("example.Foo$Bar")
-    assertFormat("m5")("x" -> "example.Foo")("example.Foo$Bar")("example.Main.m5(Foo): x.Bar")
+    assertFormat("m5")("x" -> "example.Foo")("example.Foo$Bar")("m5(x: Foo): x.Bar")
   }
 
   test("matches constant type") {
@@ -533,7 +533,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(stepFilter.findSymbol(m).isDefined)
     assertEquals(
       stepFilter.formatName(m).asScala,
-      Some("example.A.m(a): 1")
+      Some("m(x: a): 1")
     )
   }
 
@@ -555,7 +555,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(stepFilter.findSymbol(m).isDefined)
     assertEquals(
       stepFilter.formatName(m).asScala,
-      Some("example.Main.m(Foo): Bar")
+      Some("m(x: Foo): Bar")
     )
   }
 
@@ -583,12 +583,12 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(stepFilter.findSymbol(m1).isDefined)
     assertEquals(
       stepFilter.formatName(m1).asScala,
-      Some("example.Main.m1(): A&B { ... }")
+      Some("m1(): A&B { ... }")
     )
     assert(stepFilter.findSymbol(m2).isDefined)
     assertEquals(
       stepFilter.formatName(m2).asScala,
-      Some("example.Main.m2(): Object { ... }")
+      Some("m2(): Object { ... }")
     )
   }
 
@@ -612,12 +612,12 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(stepFilter.findSymbol(m1).isDefined)
     assertEquals(
       stepFilter.formatName(m1).asScala,
-      Some("example.B.m1(X): X")
+      Some("m1(x: X): X")
     )
     assert(stepFilter.findSymbol(m2).isDefined)
     assertEquals(
       stepFilter.formatName(m2).asScala,
-      Some("example.B.m2[T](T): T")
+      Some("m2[T](x: T): T")
     )
   }
 
@@ -640,7 +640,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     assert(stepFilter.findSymbol(today).isDefined)
     assertEquals(
       stepFilter.formatName(today).asScala,
-      Some("example.Main.today(): Enumeration.Value")
+      Some("today(): Enumeration.Value")
     )
   }
 
@@ -660,9 +660,9 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     def formatM(argumentType: String, returnType: String): Option[String] =
       stepFilter.formatName(FakeJdiMethod("example.Main$", "m")("xs" -> argumentType)(returnType)).asScala
     assert(findM("int[]", "scala.runtime.Nothing$").isDefined)
-    assertEquals(formatM("int[]", "scala.runtime.Nothing$"), Some("example.Main.m(Array[Int]): Nothing"))
+    assertEquals(formatM("int[]", "scala.runtime.Nothing$"), Some("m(xs: Array[Int]): Nothing"))
     assert(findM("java.lang.String[]", "scala.runtime.Null$").isDefined)
-    assertEquals(formatM("java.lang.String[]", "scala.runtime.Null$"), Some("example.Main.m(Array[String]): Null"))
+    assertEquals(formatM("java.lang.String[]", "scala.runtime.Null$"), Some("m(xs: Array[String]): Null"))
   }
 
   test("matches Array whose erasure is Object") {
@@ -677,7 +677,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     val stepFilter = getStepFilter(debuggee)
     val m = FakeJdiMethod("example.Main$", "m")("xs" -> "java.lang.Object")("java.lang.Object")
     assert(stepFilter.findSymbol(m).isDefined)
-    assertEquals(stepFilter.formatName(m).asScala, Some("example.Main.m[T](Array[T]): Array[T]"))
+    assertEquals(stepFilter.formatName(m).asScala, Some("m[T](xs: Array[T]): Array[T]"))
   }
 
   test("matches PolyType") {
@@ -692,7 +692,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     val stepFilter = getStepFilter(debuggee)
     val m = FakeJdiMethod("example.A", "m")("x" -> "java.lang.Object")("java.lang.Object")
     assert(stepFilter.findSymbol(m).isDefined)
-    assertEquals(stepFilter.formatName(m).asScala, Some("example.A.m[T](B[T]): B[T]"))
+    assertEquals(stepFilter.formatName(m).asScala, Some("m[T](x: B[T]): B[T]"))
   }
 
   test("trait initializers") {
@@ -726,7 +726,7 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     val stepFilter = getStepFilter(debuggee)
     val m = FakeJdiMethod("example.A", "m")("as" -> "scala.collection.immutable.Seq")("java.lang.String")
     assert(stepFilter.findSymbol(m).isDefined)
-    assertEquals(stepFilter.formatName(m).asScala, Some("example.A.m(<repeated>[String]): String"))
+    assertEquals(stepFilter.formatName(m).asScala, Some("m(as: <repeated>[String]): String"))
   }
 
   test("match encoded symbols") {
@@ -747,9 +747,9 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     val & = FakeJdiMethod("example.Main$", "$amp")("x" -> "example.$less$greater")("java.lang.String")
     val m = FakeJdiMethod("example.$less$greater", "m")()("example.$less$greater")
     assert(stepFilter.findSymbol(&).isDefined)
-    assertEquals(stepFilter.formatName(&).asScala, Some("example.Main.&(<>): String"))
+    assertEquals(stepFilter.formatName(&).asScala, Some("&(x: <>): String"))
     assert(stepFilter.findSymbol(m).isDefined)
-    assertEquals(stepFilter.formatName(m).asScala, Some("example.<>.m: <>"))
+    assertEquals(stepFilter.formatName(m).asScala, Some("m: <>"))
   }
 
   test("local recursive method") {
@@ -826,13 +826,14 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
     val foo = FakeJdiMethod("example.Outer", "example$Outer$$foo")()("java.lang.String")
     val m = FakeJdiMethod("example.A$", "example$A$$$m")()("int")
     assert(stepFilter.findSymbol(foo).isDefined)
-    assertEquals(stepFilter.formatName(foo).asScala, Some("example.Outer.foo: String"))
+    assertEquals(stepFilter.formatName(foo).asScala, Some("foo: String"))
     assert(stepFilter.findSymbol(m).isDefined)
-    assertEquals(stepFilter.formatName(m).asScala, Some("example.A.m: Int"))
+    assertEquals(stepFilter.formatName(m).asScala, Some("m: Int"))
 
   }
+
   test("correctly format TypeLambda") {
-     val source =
+    val source =
       """|package example
          |
          |trait Foo[F[_]]
@@ -844,13 +845,12 @@ class Scala31PlusStepFilterBridgeTests extends ScalaStepFilterBridgeTests(ScalaV
             
         
          |""".stripMargin
-    
+
     val debuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
     val stepFilter = getStepFilter(debuggee)
-    val foo = FakeJdiMethod("example.Main$","foo")()("example.Foo")
+    val foo = FakeJdiMethod("example.Main$", "foo")()("example.Foo")
     assert(stepFilter.findSymbol(foo).isDefined)
-    assertEquals(stepFilter.formatName(foo).asScala, Some("example.Main.foo: Foo[[X] =>> Either[X,Int]]"))
-   
+    assertEquals(stepFilter.formatName(foo).asScala, Some("foo: Foo[[X] =>> Either[X,Int]]"))
 
   }
 
