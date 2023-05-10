@@ -15,13 +15,13 @@ import java.util.Optional
 
 abstract class ScalaStepFilter(scalaVersion: ScalaVersion) extends StepFilter {
   protected def skipScalaMethod(method: Method): Boolean
-  def format(method: Method): Optional[String] = {
-    if (method.isBridge) Optional.empty()
-    else if (isDynamicClass(method.declaringType)) Optional.empty()
+  def format(method: Method): Option[String] = {
+    if (method.isBridge) None
+    else if (isDynamicClass(method.declaringType)) None
     else if (isJava(method)) formatScala(method)
     else if (isConstructor(method)) formatScala(method)
     else if (isStaticConstructor(method)) formatScala(method)
-    else if (isAdaptedMethod(method)) Optional.empty()
+    else if (isAdaptedMethod(method)) None
     else if (isAnonFunction(method)) formatScala(method)
     else if (isLiftedMethod(method)) formatScala(method)
     else if (isAnonClass(method.declaringType)) formatScala(method)
@@ -32,8 +32,8 @@ abstract class ScalaStepFilter(scalaVersion: ScalaVersion) extends StepFilter {
     else if (isTraitInitializer(method)) formatScala(method)
     else formatScala(method)
   }
-  def formatScala(method : Method) : Optional[String] = {
-     Optional.of(method.name())
+  def formatScala(method : Method) : Option[String] = {
+    Some(method.name())
   }
 
   override def shouldSkipOver(method: Method): Boolean = {
@@ -130,7 +130,7 @@ object ScalaStepFilter {
       tools: DebugTools,
       logger: Logger,
       testMode: Boolean
-  ): StepFilter = {
+  ): ScalaStepFilter = {
     if (debuggee.scalaVersion.isScala2)
       new Scala2StepFilter(tools.sourceLookUp, debuggee.scalaVersion, logger, testMode)
     else
@@ -143,7 +143,7 @@ object ScalaStepFilter {
         .getOrElse(fallback(debuggee.scalaVersion))
   }
 
-  private def fallback(scalaVersion: ScalaVersion): StepFilter = new ScalaStepFilter(scalaVersion) {
+  private def fallback(scalaVersion: ScalaVersion): ScalaStepFilter = new ScalaStepFilter(scalaVersion) {
     override protected def skipScalaMethod(method: Method): Boolean = false
   }
 }

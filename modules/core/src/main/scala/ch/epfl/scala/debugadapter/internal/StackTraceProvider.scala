@@ -17,8 +17,12 @@ class StepFilterProvider(
 ) extends JavaStepFilterProvider() {
 
 
-  override def formatMethodName(method: Method): Optional[String] = {
-    scalaStepFilter.format(method)
+  override def formatMethodSig(method: Method): Optional[String] = {
+    scalaStepFilter.format(method) match {
+      case None => Optional.empty()
+      case Some(s) => Optional.of(s)
+        
+        }
   }
   override def shouldSkipOver(method: Method, filters: StepFilters): Boolean = {
     try {
@@ -56,7 +60,7 @@ object StepFilterProvider {
       logger: Logger,
       testMode: Boolean
   ): StepFilterProvider = {
-    val scalaStepFilter : ScalaStepFilter = ScalaStepFilter(debuggee, tools, logger, testMode).asInstanceOf[ScalaStepFilter]
+    val scalaStepFilter : ScalaStepFilter = ScalaStepFilter(debuggee, tools, logger, testMode)
     val runtimeStepFilter = RuntimeStepFilter(debuggee.scalaVersion)
     new StepFilterProvider(
       Seq(ClassLoadingStepFilter, runtimeStepFilter, scalaStepFilter),

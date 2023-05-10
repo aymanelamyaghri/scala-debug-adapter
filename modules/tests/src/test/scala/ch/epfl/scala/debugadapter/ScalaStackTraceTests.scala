@@ -34,11 +34,11 @@ class ScalaStackTraceTests extends DebugTestSuite {
       Breakpoint(
         12,
         List(
-          "method4(a: A): String",
-          "method3(a: A): String",
-          "method2(a: A): String",
-          "method1(b: B): String",
-          "main(args: Array[String]): Unit"
+          "D.method4(a: A): String",
+          "C.method3(a: A): String",
+          "B.method2(a: A): String",
+          "A.method1(b: B): String",
+          "Main.main(args: Array[String]): Unit"
         )
       )
     )
@@ -73,11 +73,11 @@ class ScalaStackTraceTests extends DebugTestSuite {
       Breakpoint(
         12,
         List(
-          "method4(a: A): String",
-          "method3(a: A): String",
-          "method2(a: A): String",
-          "method1(b1: B)(b2: B): String",
-          "main(args: Array[String]): Unit"
+          "D.method4(a: A): String",
+          "C.method3(a: A): String",
+          "B.method2(a: A): String",
+          "A.method1(b1: B)(b2: B): String",
+          "Main.main(args: Array[String]): Unit"
         )
       )
     )
@@ -104,10 +104,10 @@ class ScalaStackTraceTests extends DebugTestSuite {
         10,
         List(
           "example.Main.Hello.greet.anonfun(int)",
-          "apply(t: Any): Any",
-          "map[B](f: A => B): List[B]",
-          "greet(): Unit",
-          "main(args: Array[String]): Unit"
+          "JFunction1$mcII$sp.apply(t: Any): Any",
+          "List.map[B](f: A => B): List[B]",
+          "Hello.greet(): Unit",
+          "Main.main(args: Array[String]): Unit"
         )
       ),
       Breakpoint(10),
@@ -145,47 +145,12 @@ class ScalaStackTraceTests extends DebugTestSuite {
       Breakpoint(
         19,
         List(
-          "gre(): Unit",
-          "greet(): Unit",
-          "main(args: Array[String]): Unit"
+          "Hell.gre(): Unit",
+          "Hello.greet(): Unit",
+          "Main.main(args: Array[String]): Unit"
         )
       )
     )
 
   }
 }
-/*test("should show the correct stackTrace in an anonymous class") {
-
-    val source =
-      """|package example
-         |trait Greeter {
-         |  def greet(name: String): Unit
-         |}
-         |object Main:
-         |  def main(args: Array[String]): Unit =
-         |
-         |    val greeter = new Greeter {
-         |      def greet(name: String): Unit = {
-         |        println(s"Hello, $name!")
-         |      }
-         |    }
-         |    greeter.greet("World")
-         |
-         |
-         |
-         |""".stripMargin
-    implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
-
-    check(
-      Breakpoint(
-        10,
-        List(
-          "test"
-        )
-      )
-      , Breakpoint(10),Breakpoint(10)
-    )
-
-  }
-
-}*/

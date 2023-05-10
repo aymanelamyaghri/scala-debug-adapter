@@ -31,23 +31,25 @@ class Scala3StepFilter(
   private def isAnonFunction(method: jdi.Method): Boolean =
     method.name.matches(".+\\$anonfun\\$\\d+")
 
-  private def formatAnonFunction(method: jdi.Method): Optional[String] = {
+  private def formatAnonFunction(method: jdi.Method): Option[String] = {
     val regex = "\\$\\$anonfun.*"
     var result = method.toString.replaceAll(regex, "").replaceAll("\\$", ".")
     result = result ++ ".anonfun" ++ "("
 
     method.argumentTypeNames().forEach(t => result = result ++ t)
-    Optional.of(result ++ ")")
+    Some(result ++ ")")
   }
 
-  override def formatScala(method: jdi.Method): Optional[String] = {
+  override def formatScala(method: jdi.Method): Option[String] = {
     try {
 
       if (isAnonFunction(method)) {
         return formatAnonFunction(method)
 
       }
-      formatMethod.invoke(bridge, method).asInstanceOf[Optional[String]]
+      val optionalFormatting = formatMethod.invoke(bridge, method).asInstanceOf[Optional[String]]
+      if (formatMethod.invoke(bridge, method).asInstanceOf[Optional[String]].isEmpty()) None
+      else Some(optionalFormatting.get())
 
     } catch {
       case e: InvocationTargetException => throw e.getCause

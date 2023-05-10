@@ -31,7 +31,7 @@ class ScalaStepFilterBridge(
   private def throwOrWarn(msg: String): Unit = {}
 //    if (testMode) throw new Exception(msg)
   //  else warn(msg)
-  def formatType(isArgs: Boolean, t: Type): String = {
+  def formatType(t: Type): String = {
     t match {
 
       case t: MethodType => {
@@ -42,15 +42,15 @@ class ScalaStepFilterBridge(
 
         t.paramTypes
           .zip(t.paramNames)
-          .map((x, y) => y.toString() + ": " + formatType(true, x))
+          .map((x, y) => y.toString() + ": " + formatType(x))
           .mkString("(", ", ", ")")
-          + (if (isreturnType) ": " else "") + formatType(false, t.resultType)
+          + (if (isreturnType) ": " else "") + formatType( t.resultType)
 
       }
       case t: TypeRef => {
         val optionalPrefix = t.prefix match
-          case prefix: TypeRef => formatType(true, prefix) + "."
-          case prefix: TermParamRef => formatType(true, prefix) + "."
+          case prefix: TypeRef => formatType( prefix) + "."
+          case prefix: TermParamRef => formatType(prefix) + "."
           case prefix: SuperType => "super."
           case _ => ""
         optionalPrefix + t.name.toString()
@@ -58,51 +58,49 @@ class ScalaStepFilterBridge(
       }
 
       case t: AppliedType =>
-        val a = formatType(true, t.tycon)
+        val a = formatType(t.tycon)
 
         if (isFunction(t.tycon)) {
 
           (if (t.args.size != 2) "(" else "") + t.args.init
-            .map(y => formatType(true, y))
+            .map(y => formatType(y))
             .reduce((x, y) => x + "," + y) + (if (t.args.size != 2) ")" else "") + " => " + formatType(
-            true,
             t.args.last
           )
-        } else if (isAndOrFunction(t.tycon)) {
+        } else if (isAndOrOr(t.tycon)) {
 
-          t.args.map(t => formatType(true, t)).reduce((x, y) => x + a + y)
+          t.args.map(t => formatType(t)).reduce((x, y) => x + a + y)
 
         } else
           a + "[" + t.args
-            .map(y => formatType(true, y))
+            .map(y => formatType( y))
             .reduce((x, y) => x + "," + y) + "]"
 
       case k: PolyType => {
 
         "[" + k.paramNames.map(t => t.toString).mkString(", ") + "]" + formatType(
-          false,
+        
           k.resultType
         )
 
       }
       case t: OrType =>
-        formatType(true, t.first) + "|" + formatType(true, t.second)
+        formatType( t.first) + "|" + formatType( t.second)
       case t: AndType =>
-        formatType(true, t.first) + "&" + formatType(true, t.second)
-      case t: ThisType => formatType(isArgs, t.tref)
-      case t: TermRefinement => formatType(true, t.parent) + " { ... }"
-      case t: AnnotatedType => formatType(isArgs, t.typ)
+        formatType( t.first) + "&" + formatType(t.second)
+      case t: ThisType => formatType( t.tref)
+      case t: TermRefinement => formatType(t.parent) + " { ... }"
+      case t: AnnotatedType => formatType(t.typ)
       case t: TypeParamRef => t.toString
-      case t: TermRef => formatType(isArgs, t.underlying)
+      case t: TermRef => formatType(t.underlying)
       case t: ConstantType => t.value.value.toString()
-      case t: ByNameType => "=> " + formatType(isArgs, t.resultType)
+      case t: ByNameType => "=> " + formatType(t.resultType)
       case t: TermParamRef => t.paramName.toString()
-      case t: TypeRefinement => formatType(true, t.parent) + " { ... }"
+      case t: TypeRefinement => formatType(t.parent) + " { ... }"
       case _: WildcardTypeBounds => "?"
-      case t: RecType => formatType(true, t.parent)
+      case t: RecType => formatType(t.parent)
       case t: TypeLambda =>
         "[" + t.paramNames.map(t => t.toString).reduce((x, y) => x + "," + y) + "]" + " =>> " + formatType(
-          true,
           t.resultType
         )
 
@@ -119,13 +117,13 @@ class ScalaStepFilterBridge(
           case _ => { false }
       }
       case _ => false
-  def isAndOrFunction(tpe: Type): Boolean =
+  def isAndOrOr(tpe: Type): Boolean =
     tpe match
       case ref: TypeRef => {
         ref.prefix match
           case t: PackageRef =>
-            ((ref.name.toString.equals("|") || ref.name.toString
-              .equals("&")) & t.fullyQualifiedName.toString().equals("scala"))
+            (ref.name.toString == "|" || ref.name.toString == "&") &&
+              t.fullyQualifiedName.toString == "scala"
 
           case _ => { false }
       }
@@ -140,8 +138,8 @@ class ScalaStepFilterBridge(
         case _ => true
       }
       val optionalString = if (notMethodType) ": " else ""
-
-      s"${t.name}${optionalString}${formatType(false, t.declaredType)}"
+ 
+      s"${t.owner.name}.${t.name}${optionalString}${formatType(t.declaredType)}"
 
     }.asJava
   def skipMethod(obj: Any): Boolean =
