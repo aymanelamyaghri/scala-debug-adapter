@@ -64,9 +64,7 @@ class ScalaStepFilterBridge(
 
           (if (t.args.size != 2) "(" else "") + t.args.init
             .map(y => formatType(y))
-            .reduce((x, y) => x + "," + y) + (if (t.args.size != 2) ")" else "") + " => " + formatType(
-            t.args.last
-          )
+            .mkString(",") + (if (t.args.size != 2) ")" else "") + " => " + formatType(t.args.last)
         } else if (isAndOrOr(t.tycon)) {
 
           t.args.map(t => formatType(t)).reduce((x, y) => x + a + y)
