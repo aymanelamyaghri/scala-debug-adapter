@@ -33,7 +33,7 @@ abstract class ScalaStepFilter(scalaVersion: ScalaVersion) extends StepFilter {
     else formatScala(method)
   }
   def formatScala(method: Method): Option[String] = Some(formatJava(method))
-  def formatJava(method: Method): String = method.name() // TODO
+  def formatJava(method: Method): String = method.declaringType().name.split("\\.").last+"."+method.name()+"("+method.argumentTypes.stream.map(t => t.name().split("\\.").last).reduce((x,y) => x+","+y).orElse("")+")"
 
   override def shouldSkipOver(method: Method): Boolean = {
 

@@ -19,7 +19,7 @@ class Scala3StepFilterTests extends StepFilterTests(ScalaVersion.`3.1+`) {
          |}
          |""".stripMargin
     implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
-    check(Breakpoint(7), StepIn.method("Main$.mTarget(String)"))
+    check(Breakpoint(7), StepIn.method(if(isScala3) "Main.m(message: String): Unit" else "Main$.mTarget(String)"))
   }
 }
 
@@ -379,19 +379,19 @@ abstract class StepFilterTests(protected val scalaVersion: ScalaVersion) extends
         StepIn.method("String.toString()"),
         StepIn.line(4),
         StepIn.line(9),
-        StepIn.method("Predef$.println(Object)"),
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else  "Predef$.println(Object)"),
         Breakpoint(10),
         StepIn.line(4),
         StepOut.line(10),
-        StepIn.method("Predef$.println(Object)"),
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else "Predef$.println(Object)"),
         Breakpoint(11),
         StepIn.line(18),
         StepIn.method("String.toString()"),
         StepIn.line(18),
         StepIn.line(11),
-        StepIn.method("Predef$.println(Object)"),
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else "Predef$.println(Object)"),
         Breakpoint(12),
-        StepIn.method("Predef$.println(Object)")
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else "Predef$.println(Object)")
       )
     } else if (isScala3) {
       check(
@@ -404,20 +404,20 @@ abstract class StepFilterTests(protected val scalaVersion: ScalaVersion) extends
         StepIn.line(6),
         StepIn.line(5),
         StepOut.line(9),
-        StepIn.method("Predef$.println(Object)"),
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else "Predef$.println(Object)"),
         Breakpoint(10),
         StepIn.line(4),
         StepIn.line(6),
         StepIn.line(4),
         StepIn.line(6),
         StepOut.line(10),
-        StepIn.method("Predef$.println(Object)"),
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else "Predef$.println(Object)"),
         Breakpoint(11),
         StepIn.line(18),
         StepOut.line(11),
-        StepIn.method("Predef$.println(Object)"),
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else "Predef$.println(Object)"),
         Breakpoint(12),
-        StepIn.method("Predef$.println(Object)")
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else "Predef$.println(Object)")
       )
     } else {
       check(
@@ -425,15 +425,15 @@ abstract class StepFilterTests(protected val scalaVersion: ScalaVersion) extends
         StepIn.line(4),
         StepIn.line(5),
         StepOut.line(9),
-        StepIn.method("Predef$.println(Object)"),
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else "Predef$.println(Object)"),
         Breakpoint(10),
-        StepIn.method("Predef$.println(Object)"),
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else "Predef$.println(Object)"),
         Breakpoint(11),
         StepIn.line(18),
         StepOut.line(11),
-        StepIn.method("Predef$.println(Object)"),
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else "Predef$.println(Object)"),
         Breakpoint(12),
-        StepIn.method("Predef$.println(Object)")
+        StepIn.method(if(isScala3)  "Predef.println(x: Any): Unit" else "Predef$.println(Object)")
       )
     }
   }
@@ -467,13 +467,13 @@ abstract class StepFilterTests(protected val scalaVersion: ScalaVersion) extends
     implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
     check(
       Breakpoint(10),
-      StepIn.method("ScalaRunTime$._toString(Product)"),
+      StepIn.method(if (isScala3) "ScalaRunTime._toString(x: Product): String" else "ScalaRunTime$._toString(Product)"),
       StepOut.line(10),
       Breakpoint(11),
       StepIn.method("A.<init>(String)"),
       StepOut.line(11),
       Breakpoint(12),
-      StepIn.method("ScalaRunTime$._hashCode(Product)"),
+      StepIn.method(if(isScala3) "ScalaRunTime._hashCode(x: Product): Int" else "ScalaRunTime$._hashCode(Product)"),
       StepOut.line(12),
       Breakpoint(13),
       StepIn.method("String.equals(Object)"),
@@ -483,7 +483,7 @@ abstract class StepFilterTests(protected val scalaVersion: ScalaVersion) extends
       StepIn.line(16),
       StepIn.line(17),
       if (isScala2) StepIn.method("ScalaRunTime$.typedProductIterator(Product)")
-      else StepIn.method("Product.productIterator()")
+      else StepIn.method(if(isScala3) "Product.productIterator: Iterator[Any]" else "Product.productIterator()")
     )
   }
 
@@ -966,11 +966,11 @@ abstract class StepFilterTests(protected val scalaVersion: ScalaVersion) extends
       Breakpoint(8),
       StepIn.method("A.<init>(Seq)"),
       Breakpoint(9),
-      StepIn.method("Predef$.println(Object)"),
+      StepIn.method(if(isScala3) "Predef.println(x: Any): Unit"  else "Predef$.println(Object)"),
       Breakpoint(10),
       StepIn.method("StringContext.<init>(Seq)"),
       Breakpoint(11),
-      StepIn.method("Predef$.println(Object)")
+      StepIn.method(if(isScala3) "Predef.println(x: Any): Unit" else "Predef$.println(Object)")
     )
   }
 
@@ -998,9 +998,9 @@ abstract class StepFilterTests(protected val scalaVersion: ScalaVersion) extends
       Breakpoint(5),
       StepIn.method("$less$greater.<init>()"),
       Breakpoint(6),
-      StepIn.method("$less$greater.m()"),
+      StepIn.method(if(isScala3) "<>.m: <>" else "$less$greater.m()"),
       Breakpoint(7),
-      StepIn.method("Main$.$amp($less$greater)")
+      StepIn.method(if(isScala3) "Main.&(x: <>): String" else "Main$.$amp($less$greater)")
     )
   }
 
@@ -1054,15 +1054,15 @@ abstract class StepFilterTests(protected val scalaVersion: ScalaVersion) extends
     implicit val debuggee: TestingDebuggee = TestingDebuggee.mainClass(source, "example.Main", scalaVersion)
     check(
       Breakpoint(9),
-      StepIn.method("LazyRef.initialized()"),
+      StepIn.method( if(isScala3) "LazyRef.initialized: Boolean" else "LazyRef.initialized()"),
       StepIn.method(
         if (isScala3) "Main$.foo$lzyINIT1$1(LazyRef)"
         else "Main$.foo$lzycompute$1(LazyRef)"
       ),
       StepOut.line(9),
       Breakpoint(10),
-      StepIn.method("LazyRef.initialized()"),
-      StepIn.method("LazyRef.value()"),
+      StepIn.method(if(isScala3) "LazyRef.initialized: Boolean" else "LazyRef.initialized()"),
+      StepIn.method(if(isScala3) "LazyRef.value: T" else "LazyRef.value()"),
       StepIn.line(10)
     )
   }

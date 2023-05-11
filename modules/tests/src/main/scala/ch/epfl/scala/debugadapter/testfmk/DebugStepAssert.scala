@@ -42,7 +42,7 @@ object DebugStepAssert {
 
   }
 
-  def assertOnFrame(expectedName: String)(frames: List[StackFrame]): Unit =
+  def assertOnFrame(expectedName: String)(frames: List[StackFrame])(implicit loc: Location): Unit =
     assertEquals(frames.head.name, expectedName)
 }
 
@@ -83,7 +83,7 @@ object StepIn {
   def line(line: Int)(implicit ctx: TestingContext, location: Location): SingleStepAssert[List[StackFrame]] =
     SingleStepAssert(StepIn(), assertOnFrame(ctx.mainSource, line, None))
 
-  def method(methodName: String): SingleStepAssert[List[StackFrame]] =
+  def method(methodName: String)(implicit loc: Location): SingleStepAssert[List[StackFrame]] =
     SingleStepAssert(StepIn(), assertOnFrame(methodName))
 }
 
