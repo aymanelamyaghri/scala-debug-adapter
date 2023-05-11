@@ -28,12 +28,9 @@ class Scala3StepFilter(
     }
   }
 
- 
-
   override def formatScala(method: jdi.Method): Option[String] = {
     try {
 
-     
       val optionalFormatting = formatMethod.invoke(bridge, method).asInstanceOf[Optional[String]]
       if (!formatMethod.invoke(bridge, method).asInstanceOf[Optional[String]].isPresent()) None
       else Some(optionalFormatting.get())
