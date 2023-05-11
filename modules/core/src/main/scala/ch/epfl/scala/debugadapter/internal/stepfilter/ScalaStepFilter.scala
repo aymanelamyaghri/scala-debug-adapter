@@ -18,23 +18,22 @@ abstract class ScalaStepFilter(scalaVersion: ScalaVersion) extends StepFilter {
   def format(method: Method): Option[String] = {
     if (method.isBridge) None
     else if (isDynamicClass(method.declaringType)) None
-    else if (isJava(method)) formatScala(method)
-    else if (isConstructor(method)) formatScala(method)
-    else if (isStaticConstructor(method)) formatScala(method)
+    else if (isJava(method)) Some(formatJava(method))
+    else if (isConstructor(method)) Some(formatJava(method))
+    else if (isStaticConstructor(method)) Some(formatJava(method))
     else if (isAdaptedMethod(method)) None
-    else if (isAnonFunction(method)) formatScala(method)
-    else if (isLiftedMethod(method)) formatScala(method)
-    else if (isAnonClass(method.declaringType)) formatScala(method)
+    else if (isAnonFunction(method)) Some(formatJava(method))
+    else if (isLiftedMethod(method)) Some(formatJava(method))
+    else if (isAnonClass(method.declaringType)) Some(formatJava(method))
     // TODO in Scala 3 we should be able to find the symbol of a local class using TASTy Query
-    else if (isLocalClass(method.declaringType)) formatScala(method)
-    else if (scalaVersion.isScala2 && isNestedClass(method.declaringType)) formatScala(method)
-    else if (isDefaultValue(method)) formatScala(method)
-    else if (isTraitInitializer(method)) formatScala(method)
+    else if (isLocalClass(method.declaringType)) Some(formatJava(method))
+    else if (scalaVersion.isScala2 && isNestedClass(method.declaringType)) Some(formatJava(method))
+    else if (isDefaultValue(method)) Some(formatJava(method))
+    else if (isTraitInitializer(method)) Some(formatJava(method))
     else formatScala(method)
   }
-  def formatScala(method : Method) : Option[String] = {
-    Some(method.name())
-  }
+  def formatScala(method : Method) : Option[String] = Some(formatJava(method))
+  def formatJava(method: Method): String = method.name() // TODO
 
   override def shouldSkipOver(method: Method): Boolean = {
 
