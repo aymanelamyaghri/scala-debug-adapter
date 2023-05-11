@@ -103,7 +103,7 @@ class ScalaStackTraceTests extends DebugTestSuite {
       Breakpoint(
         10,
         List(
-          "example.Main$Hello.greet$$anonfun$1(Optional[int])",
+          "Main$Hello.greet$$anonfun$1(int)",
           "JFunction1$mcII$sp.apply(t: Any): Any",
           "List.map[B](f: A => B): List[B]",
           "Hello.greet(): Unit",
