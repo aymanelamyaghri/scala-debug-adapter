@@ -48,7 +48,7 @@ class Scala3StepFilter(
 
       }
       val optionalFormatting = formatMethod.invoke(bridge, method).asInstanceOf[Optional[String]]
-      if (formatMethod.invoke(bridge, method).asInstanceOf[Optional[String]].isEmpty()) None
+      if (!formatMethod.invoke(bridge, method).asInstanceOf[Optional[String]].isPresent()) None
       else Some(optionalFormatting.get())
 
     } catch {
