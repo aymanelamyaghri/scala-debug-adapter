@@ -44,12 +44,12 @@ class ScalaStepFilterBridge(
           .zip(t.paramNames)
           .map((x, y) => y.toString() + ": " + formatType(x))
           .mkString("(", ", ", ")")
-          + (if (isreturnType) ": " else "") + formatType( t.resultType)
+          + (if (isreturnType) ": " else "") + formatType(t.resultType)
 
       }
       case t: TypeRef => {
         val optionalPrefix = t.prefix match
-          case prefix: TypeRef => formatType( prefix) + "."
+          case prefix: TypeRef => formatType(prefix) + "."
           case prefix: TermParamRef => formatType(prefix) + "."
           case prefix: SuperType => "super."
           case _ => ""
@@ -73,22 +73,21 @@ class ScalaStepFilterBridge(
 
         } else
           a + "[" + t.args
-            .map(y => formatType( y))
+            .map(y => formatType(y))
             .reduce((x, y) => x + "," + y) + "]"
 
       case k: PolyType => {
 
         "[" + k.paramNames.map(t => t.toString).mkString(", ") + "]" + formatType(
-        
           k.resultType
         )
 
       }
       case t: OrType =>
-        formatType( t.first) + "|" + formatType( t.second)
+        formatType(t.first) + "|" + formatType(t.second)
       case t: AndType =>
-        formatType( t.first) + "&" + formatType(t.second)
-      case t: ThisType => formatType( t.tref)
+        formatType(t.first) + "&" + formatType(t.second)
+      case t: ThisType => formatType(t.tref)
       case t: TermRefinement => formatType(t.parent) + " { ... }"
       case t: AnnotatedType => formatType(t.typ)
       case t: TypeParamRef => t.toString
@@ -123,7 +122,7 @@ class ScalaStepFilterBridge(
         ref.prefix match
           case t: PackageRef =>
             (ref.name.toString == "|" || ref.name.toString == "&") &&
-              t.fullyQualifiedName.toString == "scala"
+            t.fullyQualifiedName.toString == "scala"
 
           case _ => { false }
       }
@@ -138,7 +137,7 @@ class ScalaStepFilterBridge(
         case _ => true
       }
       val optionalString = if (notMethodType) ": " else ""
- 
+
       s"${t.owner.name}.${t.name}${optionalString}${formatType(t.declaredType)}"
 
     }.asJava

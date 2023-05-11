@@ -11,18 +11,17 @@ import java.util.Optional
 
 class StepFilterProvider(
     stepFilters: Seq[StepFilter],
-    scalaStepFilter : ScalaStepFilter,
+    scalaStepFilter: ScalaStepFilter,
     logger: Logger,
     testMode: Boolean
 ) extends JavaStepFilterProvider() {
-
 
   override def formatMethodSig(method: Method): Optional[String] = {
     scalaStepFilter.format(method) match {
       case None => Optional.empty()
       case Some(s) => Optional.of(s)
-        
-        }
+
+    }
   }
   override def shouldSkipOver(method: Method, filters: StepFilters): Boolean = {
     try {

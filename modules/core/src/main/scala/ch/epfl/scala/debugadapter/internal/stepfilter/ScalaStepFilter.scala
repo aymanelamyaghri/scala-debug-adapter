@@ -32,7 +32,7 @@ abstract class ScalaStepFilter(scalaVersion: ScalaVersion) extends StepFilter {
     else if (isTraitInitializer(method)) Some(formatJava(method))
     else formatScala(method)
   }
-  def formatScala(method : Method) : Option[String] = Some(formatJava(method))
+  def formatScala(method: Method): Option[String] = Some(formatJava(method))
   def formatJava(method: Method): String = method.name() // TODO
 
   override def shouldSkipOver(method: Method): Boolean = {
@@ -53,7 +53,6 @@ abstract class ScalaStepFilter(scalaVersion: ScalaVersion) extends StepFilter {
     else if (isTraitInitializer(method)) skipTraitInitializer(method)
     else skipScalaMethod(method)
   }
-  
 
   private def isDynamicClass(tpe: ReferenceType): Boolean =
     try {
